@@ -13,6 +13,7 @@
     "express": "^4.14.0",
     "express-session": "^1.15.6",
     "morgan": "^1.7.0",
+    "mysql": "^2.16.0",
     "pug": "^2.0.0-beta6",
     "serve-favicon": "^2.3.0"
   },
@@ -22,6 +23,9 @@
     "build-package": "pkg package.json"
   },
   "pkg": {
-    "assets": [ "views/**/*", "public" ]
+    "assets": [
+      "views/**/*",
+      "public"
+    ]
   }
 }

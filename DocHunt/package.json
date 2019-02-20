@@ -2,9 +2,6 @@
   "name": "doc-hunt",
   "version": "0.0.0",
   "private": true,
-  "scripts": {
-    "start": "node app"
-  },
   "description": "DocHunt",
   "author": {
     "name": ""
@@ -18,5 +15,13 @@
     "morgan": "^1.7.0",
     "pug": "^2.0.0-beta6",
     "serve-favicon": "^2.3.0"
+  },
+  "bin": "app.js",
+  "scripts": {
+    "start": "node app",
+    "build-package": "pkg package.json"
+  },
+  "pkg": {
+    "assets": [ "views/**/*", "public" ]
   }
 }

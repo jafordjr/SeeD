@@ -9,15 +9,38 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
 var http = require('http');
-var formidable = require('formidable'); //for uploading documents
-var fs = require('fs');
-var MongoClient = require('mongodb').MongoClient;
-var url = "mongodb://localhost:27017/mydb";
+//var formidable = require('formidable'); //for uploading documents
+//var fs = require('fs');
+//var MongoClient = require('mongodb').MongoClient;
+//var url = "mongodb://localhost:27017/mydb";
+var router = express.Router();
+var session = require('express-session');
+var mysql = require('mysql');
+
+var routes = require('./routes/index');
+var admin = require('./routes/admin');
+var client = require('./routes/client');
+var users = require('./routes/users');
 
 // Indicate server is started - Useful for commandline
 console.log("Nodejs Server started!");
 
-//shitty function for uploading a doc and saving to local folder, no integration with mongoDB yet 
+var con = mysql.createConnection({
+    host: "sql9.freemysqlhosting.net",
+    user: "sql9285483",
+    password: "qUusJhQ7zc",
+    database: "sql9285483"
+});
+
+
+con.connect(function (err) {
+    if (err) throw err;
+    console.log("Connected!");
+});
+
+
+
+/*//shitty function for uploading a doc and saving to local folder, no integration with mongoDB yet 
 http.createServer(function (req, res) {
   if (req.url == '/fileupload') {
     var form = new formidable.IncomingForm();
@@ -47,32 +70,79 @@ MongoClient.connect(url, function(err, db) {
   if (err) throw err;
   var dbo = db.db("mydb");
     db.close();
-}); 
-
-
-// Routing for Users and Individuals
-var routes = require('./routes/index');
-var users = require('./routes/users');
+}); */
 
 // Attaching express generator to App
 var app = express();
+//var users = [['testCust1', 'testCust1P', 'Johnny Smity', 'client'], ['testMana1', 'testMana1P', 'Ricky Bobby', 'admin']];
 
 // view engine setup
+app.locals.basedir = path.join(__dirname, 'views');
+app.locals.moment = require('moment');
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
-
+app.use(session({
+    resave: true,
+    saveUninitialized: true,
+    secret: "rickyBobby"
+}));
 // uncomment after placing your favicon in /public
-// app.use(favicon(__dirname + '/public/favicon.ico'));
+//app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-//Routing all paths to "routes" 
+function isAdmin(req, res, next) {
+    if (typeof req.session.user !== 'undefined') {
+        if (req.session.user.role !== 'admin') { res.redirect('/'); }
+        else { next(); }
+    }
+    else { res.redirect('/login'); }
+}
+function isClient(req, res, next) {
+    if (typeof req.session.user !== 'undefined') {
+        if (req.session.user.role !== 'client') { res.redirect('/'); }
+        else { next(); }
+    }
+    else { res.redirect('/login'); }
+}
+
 app.use('/', routes);
-//Routing "users" path to "users" -- yes this is negated by above.
-app.use('/users', users);
+app.get('/login', function (req, res, next) { if (req.session.user == null) { next(); } }, function (req, res, next) { res.render('login', { title: 'Login' }) })
+app.post('/login', function (req, res, next) {
+    con.query("SELECT * FROM users WHERE username = '" + req.body.username + "' LIMIT 1", function (err, result) {
+        if (err) { throw err };
+        if (result.length !== 0) {
+            if (result[0].password === req.body.password) {
+                req.session.user = { name: result[0].name, role: result[0].role, id: result[0].id };
+                res.redirect('/');
+            }
+            else { res.render('login', { user: req.session.user, title: 'Login', error: 'wrong password' }); }
+        }
+        else { res.render('login', { user: req.session.user, title: 'Login', error: 'user does not exist' }); }
+    });
+});
+app.get('/signUp', function (req, res, next) { if (req.session.user == null) { next(); } }, function (req, res, next) { res.render('signUp', { title: 'Sign Up' }); });
+app.post('/signUp', function (req, res, next) {
+    con.query("SELECT * FROM users WHERE username = ? LIMIT 1", [req.body.username], function (err, result, fields) {
+        if (err) { throw err }
+        if (result.length !== 0) {
+            res.render('signUp', { user: req.session.user, title: 'Sign Up', error: 'User already exists' })
+        }
+        else {
+            con.query("INSERT into users VALUES (?,?,?,?,?)", [null, req.body.username, req.body.password, 'client', req.body.name], function (err, result) {
+                if (err) { throw err; }
+                res.render('login', { user: req.session.user, title: 'Login', error: 'Sucess, Please login' })
+            });
+        }
+    });
+});
+app.get('/logout', function (req, res, next) { req.session.user = null; res.redirect('/'); });
+app.use('/admin', isAdmin, admin);
+app.use('/client', isClient, client);
+//app.use('/users', usersRoute);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -105,10 +175,10 @@ app.use(function (err, req, res, next) {
     });
 });
 
-// Setting port for the application
 app.set('port', process.env.PORT || 3000);
 
-// Starting node js express
 var server = app.listen(app.get('port'), function () {
     debug('Express server listening on port ' + server.address().port);
 });
+
+module.exports = con;

@@ -1,0 +1,18 @@
+﻿extends /layout
+
+block content
+    div(class='container')
+        h1= title
+        table.table
+            thead
+                tr
+                    th(scope='col') File ID
+                    th(scope='col') Display Name
+                    th(scope='col') Fileame
+                    th(scope='col') Actions
+            tbody
+                each doc in docs
+                    tr
+                        th(scope='row') #{doc.id}
+                        td #{doc.name}
+                        td: a(href='/admin/'+doc.id ): button.btn-primary(type='submit'): i.fas.fa-eye

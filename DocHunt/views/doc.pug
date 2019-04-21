@@ -1,0 +1,25 @@
+﻿extends /layout
+
+block content
+    div(class='container')
+        style(type="text/css").
+          .r1 {
+            color: red;
+          }
+        h1= title
+         - var i = 0;
+         - var jumper = docs[0].docid;
+         - var out = 0;
+         while( out === 0)
+            - i = i + 1
+            div(id="demo"+i style="width:100%;height:300px")
+            script.
+                var words#{i} = [];
+                while(jumper != docs[jumper+1])
+                var words = [{text: "Lorem", weight: 13},{text: "Ipsum", weight: 10.5},{text: "Dolor", weight: 9.4},{text: "Sit", weight: 8},{text: "Amet", weight: 6.2},{text: "Consectetur", weight: 5},{text: "Adipiscing", weight: 5}];
+                $('#demo#{i}').jQCloud(words);
+            - doc.document.replace("research", "<span class='r1'>"+"research"+"</span>")
+            - newDoc = doc.document.replace("research", "<span class='r1'>"+"research"+"</span>")
+
+            p #{doc.document.replace("research", "!{span class='r1' "+"research"+"}")}}
+            p #{newDoc}

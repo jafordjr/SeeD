@@ -9,13 +9,11 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
 var http = require('http');
-//var formidable = require('formidable'); //for uploading documents
-//var fs = require('fs');
-//var MongoClient = require('mongodb').MongoClient;
-//var url = "mongodb://localhost:27017/mydb";
 var router = express.Router();
-var session = require('express-session');
+const initDb = require("./helper.js").initDb;
+const getDb = require("./helper.js").getDb;
 var mysql = require('mysql');
+initDb(function () { });
 
 var routes = require('./routes/index');
 var admin = require('./routes/admin');
@@ -25,57 +23,15 @@ var users = require('./routes/users');
 // Indicate server is started - Useful for commandline
 console.log("Nodejs Server started!");
 
-var con = mysql.createConnection({
-    host: "sql9.freemysqlhosting.net",
-    user: "sql9285483",
-    password: "qUusJhQ7zc",
-    database: "sql9285483"
-});
 
+const con = getDb();
+con.query("Select * FROM users", function (err, result) {
+    if (err) { throw err };
+    console.log(result);
+}
+);
 
-con.connect(function (err) {
-    if (err) throw err;
-    console.log("Connected!");
-});
-
-
-
-/*//shitty function for uploading a doc and saving to local folder, no integration with mongoDB yet 
-http.createServer(function (req, res) {
-  if (req.url == '/fileupload') {
-    var form = new formidable.IncomingForm();
-    form.parse(req, function (err, fields, files) {
-      var oldpath = files.filetoupload.path;
-      //change this ish to whatever your filepath is
-      var newpath = '/home/david/Desktop/SeeD-master/testfiles/' + files.filetoupload.name;
-      var dbValue = [newpath, files.filetoupload.name];
-      fs.rename(oldpath, newpath, function (err) {
-        if (err) throw err;
-
-        res.write('File uploaded and moved!');
-        res.end();
-      });
- });
-  } else {
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    res.write('<form action="fileupload" method="post" enctype="multipart/form-data">');
-    res.write('<input type="file" name="filetoupload"><br>');
-    res.write('<input type="submit">');
-    res.write('</form>');
-    return res.end();
-  }
-}).listen(8080); 
-
-MongoClient.connect(url, function(err, db) {
-  if (err) throw err;
-  var dbo = db.db("mydb");
-    db.close();
-}); */
-
-// Attaching express generator to App
 var app = express();
-//var users = [['testCust1', 'testCust1P', 'Johnny Smity', 'client'], ['testMana1', 'testMana1P', 'Ricky Bobby', 'admin']];
-
 // view engine setup
 app.locals.basedir = path.join(__dirname, 'views');
 app.locals.moment = require('moment');
@@ -109,6 +65,10 @@ function isClient(req, res, next) {
     else { res.redirect('/login'); }
 }
 
+//app.use('/admin', isAdmin, admin);
+app.use('/cloud', express.static(__dirname + '/node_modules/jqcloud2/'));
+app.use('/admin', admin);
+app.use('/client', isClient, client);
 app.use('/', routes);
 app.get('/login', function (req, res, next) { if (req.session.user == null) { next(); } }, function (req, res, next) { res.render('login', { title: 'Login' }) })
 app.post('/login', function (req, res, next) {
@@ -127,7 +87,7 @@ app.post('/login', function (req, res, next) {
 app.get('/signUp', function (req, res, next) { if (req.session.user == null) { next(); } }, function (req, res, next) { res.render('signUp', { title: 'Sign Up' }); });
 app.post('/signUp', function (req, res, next) {
     con.query("SELECT * FROM users WHERE username = ? LIMIT 1", [req.body.username], function (err, result, fields) {
-        if (err) { throw err }
+        if (err) { console.trace(); throw err }
         if (result.length !== 0) {
             res.render('signUp', { user: req.session.user, title: 'Sign Up', error: 'User already exists' })
         }
@@ -140,8 +100,6 @@ app.post('/signUp', function (req, res, next) {
     });
 });
 app.get('/logout', function (req, res, next) { req.session.user = null; res.redirect('/'); });
-app.use('/admin', isAdmin, admin);
-app.use('/client', isClient, client);
 //app.use('/users', usersRoute);
 
 // catch 404 and forward to error handler

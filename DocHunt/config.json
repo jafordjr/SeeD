@@ -1,0 +1,10 @@
+﻿{
+  "db": {
+    "connectionString": {
+      "host": "sql9.freemysqlhosting.net",
+      "user": "sql9288738",
+      "password": "7E5ptxlJQs",
+      "database": "sql9288738"
+    }
+  }
+}

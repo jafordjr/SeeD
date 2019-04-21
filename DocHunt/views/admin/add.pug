@@ -1,0 +1,17 @@
+﻿extends /layout
+
+block content
+    div(class='container')
+        form(name="add" action='add' method='POST' enctype="multipart/form-data")
+            div(class='form-row')
+                div(class='form-group col-md-6')
+                    label(for='filename') Display Name
+                    input(type='text' class='form-control' name='displayname' placeholder='displayname')
+                div(class='form-group col-md-6')
+                    label(for='Password') Upload
+                    input(type="file" name="filetoupload" class='form-control' placeholder='click here to upload file')
+                div(class='row justify-content-right')
+                    div(class='col-sm-12')
+                        input(type='submit' class='btn-primary')
+                if(error)
+                    span(style='color:red;')=error

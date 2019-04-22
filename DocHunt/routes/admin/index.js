@@ -41,11 +41,11 @@ function parser(name, filename, text) {
 }
 
 router.get('/', function (req, res) {
-    db.query("SELECT * from docs", function (err, result) { if (err) throw err; res.render('admin/index', { title: 'View All Documents', docs: result, user: req.user });});    
+    db.query("SELECT * from docs", function (err, result) { if (err) throw err; res.render('admin/index', { title: 'View All Documents', docs: result, user: req.session.user });});    
 });
 
 router.get('/add', function (req, res) {
-    res.render('admin/add', { title: 'Add Document', user: req.user });
+    res.render('admin/add', { title: 'Add Document', user: req.session.user });
 });
 
 router.post('/add', function (req, res) {
@@ -91,7 +91,7 @@ router.post('/add', function (req, res) {
             parser(fields.displayname, file.name, file.toString());
         }
     });
-    res.send('done');
+    res.redirect('/admin');
 }); 
 
 router.get('/:id', function (req, res) {

@@ -18,6 +18,7 @@ router.get('/', function (req, res) {
 });
 
 router.get('/search', function (req, res) {
+    if (req.query.keywords == "") { res.redirect("/client") };
     var searchQuery = req.query.keywords;
     searchQuery = searchQuery.split(',');
     var search = 'SELECT * FROM words WHERE word = "' + searchQuery[0] + '"';
@@ -27,6 +28,7 @@ router.get('/search', function (req, res) {
     console.log(search);
     db.query(search , function (err, result) {
         if (err) throw err;
+        if (result == null) res.redirect("/client");
         var score = {};
         var frequency = {};
         result.forEach(function (w) {

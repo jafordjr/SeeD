@@ -15,4 +15,5 @@ block content
                     tr
                         th(scope='row') #{doc.id}
                         td #{doc.name}
+                        td #{doc.filename}
                         td: a(href='/admin/'+doc.id ): button.btn-primary(type='submit'): i.fas.fa-eye

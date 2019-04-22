@@ -10,6 +10,7 @@ var bodyParser = require('body-parser');
 var session = require('express-session');
 var http = require('http');
 var router = express.Router();
+var nodemailer = require('nodemailer'); 
 const initDb = require("./helper.js").initDb;
 const getDb = require("./helper.js").getDb;
 var mysql = require('mysql');
@@ -30,6 +31,14 @@ con.query("Select * FROM users", function (err, result) {
     console.log(result);
 }
 );
+
+var transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'teamdochunt@gmail.com',
+    pass: 'thissucks123'
+  }
+});
 
 var app = express();
 // view engine setup
@@ -96,6 +105,33 @@ app.post('/signUp', function (req, res, next) {
                 if (err) { throw err; }
                 res.render('login', { user: req.session.user, title: 'Login', error: 'Sucess, Please login' })
             });
+        }
+    });
+});
+app.get('/forgotPass', function (req, res, next) { if (req.session.user == null) { next(); } }, function (req, res, next) { res.render('forgotPass', { title: 'forgotPass' }) })
+app.post('/forgotPass', function (req, res, next) {
+    con.query("SELECT * FROM users WHERE username = ? LIMIT 1", [req.body.username], function (err, result, fields) {
+        if (err) { console.trace(); throw err }
+        if (result.length !== 0) {
+            var mailOptions = {
+                from: 'teamdochunt@gmail.com',
+                to: result[0].name,
+                subject: 'resetpassword',
+                text: result[0].password
+            };
+            transporter.sendMail(mailOptions, function(error, info){
+                if (error) {
+                    console.log(error);
+                } else {
+                    console.log('Email sent: ' + info.response);
+                 }
+            });
+            res.render('login', { user: req.session.user, title: 'Login', error: 'Password sent, please login' })
+
+        }
+        else {
+            res.render('signUp', { user: req.session.user, title: 'Sign Up', error: 'Email not found' })
+
         }
     });
 });

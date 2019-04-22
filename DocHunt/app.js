@@ -65,11 +65,11 @@ function isClient(req, res, next) {
     else { res.redirect('/login'); }
 }
 
-//app.use('/admin', isAdmin, admin);
+app.use('/admin', isAdmin, admin);
 app.use('/cloud', express.static(__dirname + '/node_modules/jqcloud2/'));
-app.use('/admin', admin);
-//app.use('/client', isClient, client);
-app.use('/client', client);
+//app.use('/admin', admin);
+app.use('/client', isClient, client);
+//app.use('/client', client);
 app.use('/', routes);
 app.get('/login', function (req, res, next) { if (req.session.user == null) { next(); } }, function (req, res, next) { res.render('login', { title: 'Login' }) })
 app.post('/login', function (req, res, next) {

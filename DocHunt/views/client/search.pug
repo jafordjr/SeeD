@@ -1,0 +1,23 @@
+extends /layout
+
+block content
+    div(class='container')
+        form(name="search" action='/search' method='POST')
+            div(class='form-row')
+                div(class='form-group col-md-6')
+                    label(for='term1') term1
+                    input(type='text' class='form-control' name='term1' placeholder='term1')
+                div(class='form-group col-md-6 val')
+                    label(for='term2') term2
+                    input(type="text" class='form-control' name='term2' placeholder='term2')
+                div(class='form-group col-md-6 val')
+                    label(for='term2') term3
+                    input(type="text" class='form-control' name='term3' placeholder='term3')
+                div(class='form-group col-md-6 val')
+                    label(for='term3') term4
+                    input(type="text" class='form-control' name='term4' placeholder='term4')          
+                div(class='row justify-content-right')
+                    div(class='col-sm-12')
+                        input(type='submit' class='btn-primary')
+                if(error)
+                    span(style='color:red;')=error

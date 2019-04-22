@@ -59,7 +59,7 @@ function isAdmin(req, res, next) {
 }
 function isClient(req, res, next) {
     if (typeof req.session.user !== 'undefined') {
-        if (req.session.user.role !== 'client') { res.redirect('/'); }
+        if (req.session.user.role !== 'client' && req.session.user.role !== 'admin') { res.redirect('/'); }
         else { next(); }
     }
     else { res.redirect('/login'); }
@@ -68,7 +68,8 @@ function isClient(req, res, next) {
 //app.use('/admin', isAdmin, admin);
 app.use('/cloud', express.static(__dirname + '/node_modules/jqcloud2/'));
 app.use('/admin', admin);
-app.use('/client', isClient, client);
+//app.use('/client', isClient, client);
+app.use('/client', client);
 app.use('/', routes);
 app.get('/login', function (req, res, next) { if (req.session.user == null) { next(); } }, function (req, res, next) { res.render('login', { title: 'Login' }) })
 app.post('/login', function (req, res, next) {

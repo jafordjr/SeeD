@@ -1,0 +1,40 @@
+﻿extends /layout
+
+block content
+    div(class='container')
+        style(type="text/css").
+            span{
+                font-weight: bold;
+            }
+            .r1 {color: red;}
+            .r2 {color: blue;}
+            .r3 {color: purple;}
+            .r4 {color: pink;}
+            .r5 {color: gray;}
+            .r6 {color: brown;}
+            .r7 {color: yellow;}
+            .r8 {color: green;}
+            .r9 {color: violet;}
+            .r10 {color: chrome;}
+        h1= title
+        - var i = 0;
+        each doc in docs
+            - var document = doc[4];
+            a(href="/client/"+doc[0])
+                h3=doc[3]
+            div(id="demo"+i style="width:100%;height:300px")
+            - var wordCloud = [];
+            - var j = 0;
+            - var rank = "";
+            each word in doc[2]
+                - rank += "<span class='col'>" + word[0] + " | " + word[1] + "</span>";
+                - wordCloud.push(JSON.stringify({text:word[0],weight:10-word[1]}))
+                - document = document.replace(new RegExp("\\b" + word[0] + "\\b", 'g'), "<span class='r"+searchQuery.indexOf(word[0])+"'>"+word[0]+"</span>")
+                - document = document.replace(new RegExp("\\b" + word[0].charAt(0).toUpperCase() + word[0].slice(1) + "\\b", 'g'), "<span class='r"+searchQuery.indexOf(word[0])+"'>"+word[0].charAt(0).toUpperCase() + word[0].slice(1) + "</span>")
+                - document = document.replace(new RegExp("\\b" + word[0].toUpperCase() + "\\b", 'g'), "<span class='r"+searchQuery.indexOf(word[0])+"'>"+word[0].toUpperCase()+"</span>")
+                - j += 1;
+            script.
+                $('#demo#{i}').jQCloud([!{wordCloud}]);
+            - i = i + 1;
+            h4!= rank 
+            p!= document

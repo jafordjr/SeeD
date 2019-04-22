@@ -95,7 +95,10 @@ router.post('/add', function (req, res) {
 }); 
 
 router.get('/:id', function (req, res) {
-    db.query("Select d.document, d.filename, d.name, w.count, w.docId, w.rank, w.word FROM words w RIGHT JOIN docs d ON w.docId = d.id WHERE d.id = ?", [req.params.id], function (err, result) { if (err) throw err; res.render('doc', { docs: result, title: 'View Document', user: req.user }) });
+    db.query("SELECT  d.document, d.filename, d.name, w.count, w.docId, w.rank, w.word FROM words w RIGHT JOIN docs d ON w.docId = d.id WHERE d.id = ?", [req.params.id], function (err, result) {
+        if (err) throw err;
+        res.render('doc', { docs: result, title: 'View Document', user: req.user })
+    });
 });
 router.delete('/:id', function (req, res) {
 });

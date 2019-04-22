@@ -1,0 +1,14 @@
+extends /layout
+
+block content
+    div(class='container')
+        form(name="forgotPass" action='/forgotpass' method='POST')
+            div(class='form-row')
+                div(class='form-group col-md-6')
+                    label(for='username') Username
+                    input(type='text' class='form-control' name='username' placeholder='Username')
+                div(class='row justify-content-right')
+                    div(class='col-sm-12')
+                        input(type='submit' class='btn-primary')
+                if(error)
+                    span(style='color:red;')=error

@@ -73,4 +73,8 @@ router.get('/:id', function (req, res) {
     });
 });
 
+router.get('/search', function (req, res){
+	res.render('client/search', { title: 'Search', user: req.user })
+});
+
 module.exports = router;
